@@ -24,7 +24,7 @@ jobs:
 
       - name: Lint and tests (docker only)
         run: |
-          docker compose run --rm airflow-webserver bash -lc "uv pip install --system -e libs/core -e libs/ingestion -e apps/api -e apps/orchestrator pytest ruff black mypy && ruff check libs apps tests && black --check libs apps tests && pytest -q"
+          docker compose run --rm airflow-webserver bash -lc "ruff check libs apps tests && black --check libs apps tests && pytest -o cache_dir=/tmp/pytest-cache -q"
 
       - name: DAG parse check
         run: |
@@ -32,15 +32,12 @@ jobs:
 
       - name: Run dbt parse/run/test
         run: |
-          docker compose run --rm dbt dbt deps --project-dir /opt/potatocore/analytics/dbt --profiles-dir /opt/potatocore/analytics/dbt --target dev
-          docker compose run --rm dbt dbt run --project-dir /opt/potatocore/analytics/dbt --profiles-dir /opt/potatocore/analytics/dbt --target dev
-          docker compose run --rm dbt dbt test --project-dir /opt/potatocore/analytics/dbt --profiles-dir /opt/potatocore/analytics/dbt --target dev
+          docker compose run --rm airflow-webserver bash -lc "python -c \"from potatocore.ingestion.bronze_loader import load_lotofacil_to_bronze; print(load_lotofacil_to_bronze())\" && python -c \"from potatocore.orchestrator.jobs.dbt_runner import run_dbt; run_dbt('deps'); run_dbt('run'); run_dbt('test')\""
 
       - name: API smoke
         run: |
           docker compose up -d api
-          sleep 10
-          curl --fail http://localhost:8000/health
+          until curl --fail http://localhost:8000/health; do sleep 5; done
 
       - name: Shutdown stack
         if: always()
