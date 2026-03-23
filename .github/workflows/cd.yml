@@ -15,21 +15,46 @@ on:
     branches: [main]
 
 jobs:
-  deploy-staging:
-    if: github.event_name == 'push' || github.event.inputs.environment == 'staging'
+  deploy:
+    name: Deploy via SSH
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Deploy compose stack (staging)
-        run: |
-          docker compose up -d --build
+    environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || 'staging' }}
 
-  deploy-production:
-    if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production'
-    runs-on: ubuntu-latest
-    environment: production
     steps:
-      - uses: actions/checkout@v4
-      - name: Deploy compose stack (production)
-        run: |
-          docker compose up -d --build
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy on remote host
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            set -e
+            cd "${{ secrets.DEPLOY_PATH }}"
+            git fetch --all
+            git checkout main
+            git pull origin main
+            docker compose down
+            docker compose up -d --build
+            docker compose ps
+
+      - name: Validate deployed API health
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            set -e
+            cd "${{ secrets.DEPLOY_PATH }}"
+            for i in $(seq 1 24); do
+              if curl --fail --silent http://localhost:8000/health > /dev/null; then
+                echo "API healthy"
+                exit 0
+              fi
+              sleep 5
+            done
+            echo "API health check failed after deploy"
+            exit 1
