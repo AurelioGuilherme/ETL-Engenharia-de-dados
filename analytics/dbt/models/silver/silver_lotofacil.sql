@@ -1,0 +1,45 @@
+with source_data as (
+    select *
+    from {{ ref('bronze_lotofacil') }}
+)
+
+select
+    ingestion_id,
+    ingested_at,
+    source_file_path,
+    source_file_hash,
+    source_row_number::bigint as source_row_number,
+    concurso::bigint as concurso,
+    to_date(trim(data_sorteio::text), 'DD/MM/YYYY') as data_sorteio,
+    bola1::smallint as bola1,
+    bola2::smallint as bola2,
+    bola3::smallint as bola3,
+    bola4::smallint as bola4,
+    bola5::smallint as bola5,
+    bola6::smallint as bola6,
+    bola7::smallint as bola7,
+    bola8::smallint as bola8,
+    bola9::smallint as bola9,
+    bola10::smallint as bola10,
+    bola11::smallint as bola11,
+    bola12::smallint as bola12,
+    bola13::smallint as bola13,
+    bola14::smallint as bola14,
+    bola15::smallint as bola15,
+    ganhadores_15_acertos::bigint as ganhadores_15_acertos,
+    nullif(trim(cidade_uf::text), '') as cidade_uf,
+    cast(nullif(trim(replace(replace(replace(rateio_15_acertos::text, 'R$', ''), '.', ''), ',', '.')), '') as numeric(14, 2)) as rateio_15_acertos,
+    ganhadores_14_acertos::bigint as ganhadores_14_acertos,
+    cast(nullif(trim(replace(replace(replace(rateio_14_acertos::text, 'R$', ''), '.', ''), ',', '.')), '') as numeric(14, 2)) as rateio_14_acertos,
+    ganhadores_13_acertos::bigint as ganhadores_13_acertos,
+    cast(nullif(trim(replace(replace(replace(rateio_13_acertos::text, 'R$', ''), '.', ''), ',', '.')), '') as numeric(14, 2)) as rateio_13_acertos,
+    ganhadores_12_acertos::bigint as ganhadores_12_acertos,
+    cast(nullif(trim(replace(replace(replace(rateio_12_acertos::text, 'R$', ''), '.', ''), ',', '.')), '') as numeric(14, 2)) as rateio_12_acertos,
+    ganhadores_11_acertos::bigint as ganhadores_11_acertos,
+    cast(nullif(trim(replace(replace(replace(rateio_11_acertos::text, 'R$', ''), '.', ''), ',', '.')), '') as numeric(14, 2)) as rateio_11_acertos,
+    cast(nullif(trim(replace(replace(replace(acumulado_15_acertos::text, 'R$', ''), '.', ''), ',', '.')), '') as numeric(14, 2)) as acumulado_15_acertos,
+    cast(nullif(trim(replace(replace(replace(arrecadacao_total::text, 'R$', ''), '.', ''), ',', '.')), '') as numeric(14, 2)) as arrecadacao_total,
+    cast(nullif(trim(replace(replace(replace(estimativa_premio::text, 'R$', ''), '.', ''), ',', '.')), '') as numeric(14, 2)) as estimativa_premio,
+    cast(nullif(trim(replace(replace(replace(acumulado_sorteio_especial_lotofacil_da_independencia::text, 'R$', ''), '.', ''), ',', '.')), '') as numeric(14, 2)) as acumulado_sorteio_especial_lotofacil_da_independencia,
+    nullif(trim(observacao::text), '') as observacao
+from source_data

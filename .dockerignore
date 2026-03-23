@@ -1,0 +1,16 @@
+.git
+.gitignore
+.venv
+__pycache__/
+**/__pycache__/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.claude/
+airflow_logs/
+analytics/dbt/logs/
+analytics/dbt/target/
+analytics/dbt/dbt_packages/
+*.pyc
+*.pyo
+*.pyd

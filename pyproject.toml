@@ -1,0 +1,43 @@
+[project]
+name = "potatocore-monorepo"
+version = "0.1.0"
+description = "PotatoCore data platform monorepo"
+requires-python = ">=3.11"
+dependencies = []
+
+[dependency-groups]
+dev = [
+  "black>=24.8.0",
+  "mypy>=1.11.2",
+  "pytest>=8.3.3",
+  "ruff>=0.7.0",
+]
+
+[tool.uv.workspace]
+members = ["libs/*", "apps/*"]
+
+[tool.uv.sources]
+potatocore-core = { workspace = true }
+potatocore-ingestion = { workspace = true }
+potatocore-orchestrator = { workspace = true }
+potatocore-api = { workspace = true }
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = [
+  "libs/core/src",
+  "libs/ingestion/src",
+  "apps/api/src",
+  "apps/orchestrator/src",
+]

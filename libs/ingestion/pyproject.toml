@@ -1,0 +1,18 @@
+[project]
+name = "potatocore-ingestion"
+version = "0.1.0"
+description = "Ingestion logic for PotatoCore ETL"
+requires-python = ">=3.11"
+dependencies = [
+  "pandas>=2.1.2,<2.2",
+  "openpyxl>=3.1.5",
+  "potatocore-core",
+  "sqlalchemy>=1.4.36,<2.0",
+]
+
+[build-system]
+requires = ["hatchling>=1.25.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/potatocore"]

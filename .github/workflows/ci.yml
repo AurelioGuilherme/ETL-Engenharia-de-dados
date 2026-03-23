@@ -1,0 +1,47 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  docker-ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build images
+        run: docker compose build airflow-webserver dbt api
+
+      - name: Start dependencies
+        run: docker compose up -d postgres_warehouse postgres_api redis
+
+      - name: Lint and tests (docker only)
+        run: |
+          docker compose run --rm airflow-webserver bash -lc "uv pip install --system -e libs/core -e libs/ingestion -e apps/api -e apps/orchestrator pytest ruff black mypy && ruff check libs apps tests && black --check libs apps tests && pytest -q"
+
+      - name: DAG parse check
+        run: |
+          docker compose run --rm airflow-webserver bash -lc "python -c \"import importlib; importlib.import_module('potatocore.orchestrator.dags.etl_lotofacil'); print('ok')\""
+
+      - name: Run dbt parse/run/test
+        run: |
+          docker compose run --rm dbt dbt deps --project-dir /opt/potatocore/analytics/dbt --profiles-dir /opt/potatocore/analytics/dbt --target dev
+          docker compose run --rm dbt dbt run --project-dir /opt/potatocore/analytics/dbt --profiles-dir /opt/potatocore/analytics/dbt --target dev
+          docker compose run --rm dbt dbt test --project-dir /opt/potatocore/analytics/dbt --profiles-dir /opt/potatocore/analytics/dbt --target dev
+
+      - name: API smoke
+        run: |
+          docker compose up -d api
+          sleep 10
+          curl --fail http://localhost:8000/health
+
+      - name: Shutdown stack
+        if: always()
+        run: docker compose down -v

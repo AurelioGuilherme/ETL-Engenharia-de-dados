@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.python-version
+
+# Virtualenvs
+.venv/
+venv/
+
+# Tool caches
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS/editor
+.DS_Store
+.idea/
+.vscode/
+
+# Data/runtime
+logs/
+tmp/
+*.log
+
+# Airflow/dbt runtime
+airflow_logs/
+analytics/dbt/logs/
+analytics/dbt/target/
+analytics/dbt/dbt_packages/
+dbt_packages/
+
+# Local agent/dev files
+.claude/
+.env
+.env.*

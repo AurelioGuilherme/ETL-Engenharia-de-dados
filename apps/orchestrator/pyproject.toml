@@ -1,0 +1,22 @@
+[project]
+name = "potatocore-orchestrator"
+version = "0.1.0"
+description = "Airflow orchestration for PotatoCore platform"
+requires-python = ">=3.11"
+dependencies = [
+  "apache-airflow==2.10.2",
+  "dbt-core==1.8.8",
+  "dbt-postgres==1.8.2",
+  "pandas>=2.1.2,<2.2",
+  "potatocore-core",
+  "potatocore-ingestion",
+  "psycopg2-binary>=2.9.9",
+  "sqlalchemy>=1.4.36,<2.0",
+]
+
+[build-system]
+requires = ["hatchling>=1.25.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/potatocore"]

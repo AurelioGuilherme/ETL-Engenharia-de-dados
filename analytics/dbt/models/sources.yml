@@ -1,0 +1,28 @@
+version: 2
+
+sources:
+  - name: bronze
+    database: "{{ env_var('WAREHOUSE_DB_NAME', 'warehouse') }}"
+    schema: bronze
+    tables:
+      - name: lotofacil_ingestion_history
+
+models:
+  - name: silver_lotofacil
+    columns:
+      - name: concurso
+        data_tests:
+          - not_null
+          - unique
+      - name: data_sorteio
+        data_tests:
+          - not_null
+  - name: gold_lotofacil_concursos
+    columns:
+      - name: concurso
+        data_tests:
+          - not_null
+          - unique
+      - name: ganhadores_15_acertos
+        data_tests:
+          - not_null
